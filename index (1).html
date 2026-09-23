@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Practice Lab</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f6f8fc;
+  color:#202124;
+}
+button,input,textarea{font:inherit}
+.hidden{display:none!important}
+
+/* Top bar */
+.topbar{
+  height:64px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:0 18px;
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.menu{font-size:24px;color:#5f6368}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:190px;
+}
+.gmail-icon{
+  width:36px;height:28px;position:relative;
+}
+.gmail-icon:before{
+  content:"";
+  position:absolute;inset:0;
+  border:4px solid #ea4335;
+  border-top:0;
+  border-radius:4px;
+}
+.gmail-icon:after{
+  content:"";
+  position:absolute;
+  width:22px;height:22px;
+  left:5px;top:-2px;
+  border-left:4px solid #4285f4;
+  border-bottom:4px solid #34a853;
+  transform:rotate(-45deg);
+  border-radius:2px;
+}
+.brand-text{font-size:22px;color:#5f6368}
+.search{
+  flex:1;
+  max-width:720px;
+  background:#eaf1fb;
+  border-radius:24px;
+  height:46px;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  color:#5f6368;
+}
+.search input{
+  border:0;outline:0;background:transparent;flex:1;
+  font-size:15px;color:#202124;
+}
+.top-actions{display:flex;gap:14px;color:#5f6368;font-size:20px}
+
+/* Layout */
+.shell{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{padding:16px 12px;background:#f6f8fc}
+.compose-main{
+  width:145px;height:54px;border:0;border-radius:16px;
+  background:#c2e7ff;color:#001d35;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 1px 2px rgba(0,0,0,.08);
+  margin-bottom:16px;
+}
+.nav-item{
+  height:34px;border-radius:18px;
+  display:flex;align-items:center;gap:14px;
+  padding:0 16px;font-size:14px;color:#3c4043;
+}
+.nav-item.active{background:#d3e3fd;font-weight:700}
+.nav-item span:first-child{width:22px;text-align:center}
+.section-title{font-size:14px;font-weight:700;color:#5f6368;margin:20px 12px 8px}
+.lab-card{
+  margin:18px 0 0;
+  padding:14px;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  font-size:12px;
+  line-height:1.45;
+}
+.lab-card b{display:block;margin-bottom:6px}
+
+.content{padding:18px 18px 40px 0}
+.mail-panel{
+  background:#fff;
+  border-radius:16px;
+  min-height:calc(100vh - 100px);
+  box-shadow:0 1px 3px rgba(60,64,67,.18);
+  overflow:hidden;
+}
+.toolbar{
+  height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;border-bottom:1px solid #eceff1;
+  color:#5f6368;font-size:14px;
+}
+.toolbar-left{display:flex;gap:20px;align-items:center}
+.tabs{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-bottom:1px solid #eceff1;
+}
+.tab{
+  padding:16px 18px;
+  font-size:14px;color:#5f6368;
+  border-bottom:3px solid transparent;
+}
+.tab.active{color:#0b57d0;border-bottom-color:#0b57d0;font-weight:700}
+.email-row{
+  display:grid;
+  grid-template-columns:32px 32px 180px 1fr 90px;
+  align-items:center;
+  padding:10px 14px;
+  border-bottom:1px solid #eceff1;
+  font-size:14px;
+  background:#fff;
+}
+.email-row.unread{font-weight:700;background:#f8fbff}
+.email-row .muted{font-weight:400;color:#5f6368}
+.center-message{
+  padding:26px;
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:22px;
+}
+.instructions{
+  border:1px solid #dfe3e7;
+  border-radius:16px;
+  padding:20px;
+}
+.instructions h2{margin:0 0 6px;font-size:24px}
+.instructions p{color:#5f6368;line-height:1.6}
+.mission-box{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid #d2e3fc;
+  background:#f8fbff;
+  border-radius:14px;
+}
+.mission-box h3{margin:0 0 6px;font-size:18px}
+.mission-box p{margin:0;color:#3c4043}
+.mission-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:14px;font-size:12px;color:#5f6368;
+}
+.progress{height:7px;background:#e8eaed;border-radius:20px;overflow:hidden;margin-top:8px}
+.progress>div{height:100%;background:#0b57d0;width:0}
+.people{
+  display:grid;gap:8px;margin-top:12px;
+}
+.person{
+  border:1px solid #dfe3e7;
+  border-radius:10px;
+  padding:10px 12px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:#fff;cursor:pointer;
+}
+.person:hover{background:#f7f9fc}
+.person.selected{outline:2px solid #0b57d0;background:#edf4ff}
+.person small{color:#5f6368}
+.side-help{
+  border:1px solid #dfe3e7;
+  border-radius:16px;
+  padding:18px;height:max-content;
+}
+.side-help h4{margin:0 0 12px}
+.rule{margin-bottom:12px;font-size:13px;line-height:1.45}
+.rule b{display:inline-block;min-width:38px;color:#0b57d0}
+.feedback{
+  margin-top:12px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;display:none
+}
+.feedback.good{display:block;background:#e6f4ea;color:#137333}
+.feedback.bad{display:block;background:#fce8e6;color:#b3261e}
+.feedback.info{display:block;background:#fff4d6;color:#7a4f01}
+
+/* Compose window */
+.compose-window{
+  position:fixed;
+  right:28px;
+  bottom:0;
+  width:min(620px,calc(100vw - 28px));
+  height:560px;
+  background:#fff;
+  border-radius:10px 10px 0 0;
+  box-shadow:0 8px 28px rgba(60,64,67,.35);
+  overflow:hidden;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+}
+.compose-header{
+  background:#404040;color:#fff;
+  padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:14px;font-weight:700;
+}
+.compose-header .actions{display:flex;gap:14px;color:#ddd}
+.compose-body{display:flex;flex-direction:column;flex:1}
+.recipient-line{
+  display:flex;
+  align-items:flex-start;
+  min-height:42px;
+  border-bottom:1px solid #eceff1;
+  padding:7px 10px;
+  gap:8px;
+}
+.recipient-label{
+  width:42px;color:#5f6368;font-size:13px;padding-top:6px;
+}
+.recipient-drop{
+  flex:1;
+  min-height:28px;
+  display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+  border-radius:6px;
+}
+.recipient-drop.target{outline:2px dashed #0b57d0;background:#f4f8ff}
+.chip{
+  background:#e8f0fe;
+  color:#174ea6;
+  border-radius:16px;
+  padding:5px 8px;
+  font-size:12px;
+  display:flex;align-items:center;gap:5px;
+}
+.chip button{
+  border:0;background:transparent;color:#5f6368;padding:0;cursor:pointer
+}
+.ccbcc-links{
+  display:flex;gap:10px;color:#5f6368;font-size:12px;padding-top:5px
+}
+.subject{
+  border:0;border-bottom:1px solid #eceff1;
+  padding:11px 12px;outline:0;
+}
+.message{
+  flex:1;border:0;outline:0;resize:none;padding:14px 12px;line-height:1.5
+}
+.compose-footer{
+  padding:10px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid #eceff1
+}
+.send{
+  border:0;background:#0b57d0;color:#fff;
+  border-radius:20px;padding:9px 22px;font-weight:700
+}
+.compose-tools{color:#5f6368;display:flex;gap:14px;font-size:17px}
+.safe{font-size:11px;color:#5f6368}
+
+/* modal */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(32,33,36,.35);
+  display:grid;place-items:center;z-index:60;padding:20px
+}
+.modal{
+  background:#fff;border-radius:16px;max-width:520px;width:100%;
+  padding:22px;box-shadow:0 16px 48px rgba(0,0,0,.25)
+}
+.modal h3{margin:0 0 8px}
+.modal p{color:#5f6368;line-height:1.5}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.btn{
+  border:0;border-radius:20px;padding:9px 16px;font-weight:700;cursor:pointer
+}
+.btn.primary{background:#0b57d0;color:#fff}
+.btn.secondary{background:#eef3f8;color:#1f1f1f}
+.btn.ghost{background:#fff;border:1px solid #dadce0}
+
+@media(max-width:900px){
+  .shell{grid-template-columns:72px 1fr}
+  .sidebar .nav-item{justify-content:center;padding:0}
+  .sidebar .nav-item span:last-child,.section-title,.lab-card,.compose-main span:last-child{display:none}
+  .compose-main{width:52px;border-radius:16px}
+  .brand{min-width:auto}.brand-text{display:none}
+  .center-message{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="menu">☰</div>
+  <div class="brand">
+    <div class="gmail-icon"></div>
+    <div class="brand-text">Mail Practice</div>
+  </div>
+  <div class="search">
+    🔍&nbsp;&nbsp;<input placeholder="Search mail">
+  </div>
+  <div class="top-actions">⚙️ ◉</div>
+</div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <button class="compose-main" onclick="openCompose()"><span>✎</span><span>Compose</span></button>
+    <div class="nav-item active"><span>📥</span><span>Inbox</span></div>
+    <div class="nav-item"><span>⭐</span><span>Starred</span></div>
+    <div class="nav-item"><span>🕒</span><span>Snoozed</span></div>
+    <div class="nav-item"><span>📤</span><span>Sent</span></div>
+    <div class="nav-item"><span>📝</span><span>Drafts</span></div>
+    <div class="section-title">Labels</div>
+    <div class="nav-item"><span>🏫</span><span>School</span></div>
+    <div class="nav-item"><span>📚</span><span>Projects</span></div>
+    <div class="lab-card">
+      <b>Classroom simulator</b>
+      Nothing is sent. No sign-in is needed. All addresses are fictional.
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="mail-panel">
+      <div class="toolbar">
+        <div class="toolbar-left">☐ ⟳ ⋮</div>
+        <div>1–4 of 4</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">Primary</div>
+        <div class="tab">Promotions</div>
+        <div class="tab">Social</div>
+      </div>
+
+      <div class="email-row unread">
+        <div>☐</div><div>☆</div><div>Digital Learning</div>
+        <div>Welcome to the To, Cc & Bcc practice lab <span class="muted">— Complete the missions using Compose.</span></div>
+        <div>Today</div>
+      </div>
+      <div class="email-row">
+        <div>☐</div><div>☆</div><div>School Office</div>
+        <div>Privacy reminder <span class="muted">— Use Bcc when group recipients should not see each other.</span></div>
+        <div>Yesterday</div>
+      </div>
+      <div class="email-row">
+        <div>☐</div><div>☆</div><div>Ms. Lee</div>
+        <div>Project communication <span class="muted">— Remember: Cc keeps someone informed.</span></div>
+        <div>Mon</div>
+      </div>
+
+      <div class="center-message">
+        <section class="instructions">
+          <h2 id="missionTitle">Mission 1: Project update</h2>
+          <p id="scenario">Omar must reply with the final project file. Ms. Lee only needs to stay informed.</p>
+
+          <div class="mission-box">
+            <h3>Your task</h3>
+            <p id="goal">Choose the correct recipient field for each person, add a subject, and write a short message.</p>
+            <div class="mission-meta">
+              <span id="missionNo">Mission 1 of 6</span>
+              <span id="score">Score: 0</span>
+            </div>
+            <div class="progress"><div id="progressBar"></div></div>
+
+            <div class="people" id="peoplePool"></div>
+            <div id="feedback" class="feedback"></div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn primary" onclick="openCompose()">Open Compose</button>
+              <button class="btn secondary" onclick="resetMission()">Reset</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-help">
+          <h4>Quick guide</h4>
+          <div class="rule"><b>To</b> main receiver; expected to act or reply.</div>
+          <div class="rule"><b>Cc</b> keeps someone informed; address is visible.</div>
+          <div class="rule"><b>Bcc</b> hides recipients from one another; use when privacy matters.</div>
+          <hr style="border:0;border-top:1px solid #eceff1;margin:14px 0">
+          <div class="rule"><b>Tip</b> Click a person, then click To, Cc, or Bcc in the compose window.</div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="compose-window hidden" id="composeWindow">
+  <div class="compose-header">
+    <span>New Message</span>
+    <div class="actions">— □ <span onclick="closeCompose()" style="cursor:pointer">×</span></div>
+  </div>
+  <div class="compose-body">
+    <div class="recipient-line">
+      <div class="recipient-label">To</div>
+      <div class="recipient-drop" data-field="to"></div>
+      <div class="ccbcc-links"><span onclick="focusField('cc')">Cc</span><span onclick="focusField('bcc')">Bcc</span></div>
+    </div>
+    <div class="recipient-line">
+      <div class="recipient-label">Cc</div>
+      <div class="recipient-drop" data-field="cc"></div>
+    </div>
+    <div class="recipient-line">
+      <div class="recipient-label">Bcc</div>
+      <div class="recipient-drop" data-field="bcc"></div>
+    </div>
+    <input id="subject" class="subject" placeholder="Subject">
+    <textarea id="message" class="message" placeholder="Write your message"></textarea>
+  </div>
+  <div class="compose-footer">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="send" onclick="checkMission()">Send</button>
+      <div class="compose-tools">📎 🔗 😊</div>
+    </div>
+    <div class="safe">Practice only</div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Correct!</h3>
+    <p id="modalText"></p>
+    <div style="background:#f8fbff;border:1px solid #d2e3fc;border-radius:10px;padding:12px;font-size:13px;line-height:1.5" id="modalWhy"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Review</button>
+      <button class="btn primary" onclick="nextMission()">Next mission</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const missions=[
+{
+ title:"Mission 1: Project update",
+ scenario:"Omar must reply with the final project file. Ms. Lee only needs to stay informed.",
+ goal:"Choose the correct recipient field for each person, add a subject, and write a short message.",
+ people:[
+  {name:"Omar",email:"omar@school.demo",field:"to"},
+  {name:"Ms. Lee",email:"mlee@school.demo",field:"cc"}
+ ],
+ why:"Omar belongs in To because he must act. Ms. Lee belongs in Cc because she only needs to stay informed."
+},
+{
+ title:"Mission 2: Parent invitation",
+ scenario:"Three parents should receive the same event invitation. They do not know each other and their email addresses should stay private.",
+ goal:"Use the field that protects recipient privacy.",
+ people:[
+  {name:"Parent A",email:"parent.a@school.demo",field:"bcc"},
+  {name:"Parent B",email:"parent.b@school.demo",field:"bcc"},
+  {name:"Parent C",email:"parent.c@school.demo",field:"bcc"}
+ ],
+ why:"Bcc hides each parent's address from the other recipients."
+},
+{
+ title:"Mission 3: Research team",
+ scenario:"Aisha, Noah, and Zain must each send one research fact. The librarian only needs to know the message was sent.",
+ goal:"Separate people who must act from people who only need visibility.",
+ people:[
+  {name:"Aisha",email:"aisha@school.demo",field:"to"},
+  {name:"Noah",email:"noah@school.demo",field:"to"},
+  {name:"Zain",email:"zain@school.demo",field:"to"},
+  {name:"Librarian",email:"library@school.demo",field:"cc"}
+ ],
+ why:"The students must act, so they go in To. The librarian only needs to stay informed, so Cc is appropriate."
+},
+{
+ title:"Mission 4: Club newsletter",
+ scenario:"The Activities Coordinator is the main contact. Three students should receive the newsletter without seeing one another's addresses.",
+ goal:"Use more than one recipient field in the same message.",
+ people:[
+  {name:"Activities Coordinator",email:"activities@school.demo",field:"to"},
+  {name:"Student 1",email:"student1@school.demo",field:"bcc"},
+  {name:"Student 2",email:"student2@school.demo",field:"bcc"},
+  {name:"Student 3",email:"student3@school.demo",field:"bcc"}
+ ],
+ why:"The coordinator is the main receiver. The students belong in Bcc to protect their privacy."
+},
+{
+ title:"Mission 5: Competition approval",
+ scenario:"Mr. Hasan must approve your competition registration. Your homeroom teacher should see the message but does not need to reply.",
+ goal:"Choose To for action and Cc for visibility.",
+ people:[
+  {name:"Mr. Hasan",email:"hasan@school.demo",field:"to"},
+  {name:"Homeroom Teacher",email:"homeroom@school.demo",field:"cc"}
+ ],
+ why:"Mr. Hasan must act, so he belongs in To. The homeroom teacher only needs to see the message, so Cc is best."
+},
+{
+ title:"Mission 6: Privacy challenge",
+ scenario:"The workshop coordinator must reply with the room number. Several students should receive the announcement, but their addresses must remain private.",
+ goal:"Use To and Bcc together, then explain the privacy trade-off.",
+ people:[
+  {name:"Workshop Coordinator",email:"workshop@school.demo",field:"to"},
+  {name:"Student A",email:"student.a@school.demo",field:"bcc"},
+  {name:"Student B",email:"student.b@school.demo",field:"bcc"},
+  {name:"Student C",email:"student.c@school.demo",field:"bcc"},
+  {name:"Student D",email:"student.d@school.demo",field:"bcc"}
+ ],
+ why:"The coordinator must reply, so To is correct. Students belong in Bcc because their addresses should not be shared."
+}
+];
+
+let missionIndex=0;
+let score=0;
+let selectedPerson=null;
+let placements={};
+let completed=new Set();
+
+function renderMission(){
+ const m=missions[missionIndex];
+ document.getElementById("missionTitle").textContent=m.title;
+ document.getElementById("scenario").textContent=m.scenario;
+ document.getElementById("goal").textContent=m.goal;
+ document.getElementById("missionNo").textContent=`Mission ${missionIndex+1} of ${missions.length}`;
+ document.getElementById("score").textContent=`Score: ${score}`;
+ document.getElementById("progressBar").style.width=`${(missionIndex/missions.length)*100}%`;
+ const pool=document.getElementById("peoplePool");
+ pool.innerHTML="";
+ m.people.forEach((p,i)=>{
+   const el=document.createElement("div");
+   el.className="person";
+   el.dataset.id=i;
+   el.innerHTML=`<div><b>${p.name}</b><br><small>${p.email}</small></div><div>›</div>`;
+   el.onclick=()=>selectPerson(i,el);
+   pool.appendChild(el);
+ });
+ placements={};selectedPerson=null;
+ renderRecipients();
+ document.getElementById("subject").value="";
+ document.getElementById("message").value="";
+ hideFeedback();
+}
+
+function selectPerson(i,el){
+ document.querySelectorAll(".person").forEach(x=>x.classList.remove("selected"));
+ selectedPerson=i;
+ el.classList.add("selected");
+ openCompose();
+ showFeedback("info","Now click To, Cc, or Bcc in the compose window.");
+}
+
+function openCompose(){document.getElementById("composeWindow").classList.remove("hidden")}
+function closeCompose(){document.getElementById("composeWindow").classList.add("hidden")}
+
+function focusField(field){
+ if(selectedPerson===null){
+   showFeedback("info","Select a recipient from the mission list first.");
+   return;
+ }
+ placements[selectedPerson]=field;
+ selectedPerson=null;
+ document.querySelectorAll(".person").forEach(x=>x.classList.remove("selected"));
+ renderRecipients();
+ hideFeedback();
+}
+
+document.querySelectorAll(".recipient-drop").forEach(drop=>{
+ drop.onclick=()=>focusField(drop.dataset.field);
+});
+
+function renderRecipients(){
+ document.querySelectorAll(".recipient-drop").forEach(d=>d.innerHTML="");
+ const people=missions[missionIndex].people;
+ Object.entries(placements).forEach(([id,field])=>{
+   const p=people[Number(id)];
+   const chip=document.createElement("div");
+   chip.className="chip";
+   chip.innerHTML=`${p.name} &lt;${p.email}&gt; <button>×</button>`;
+   chip.querySelector("button").onclick=(e)=>{
+     e.stopPropagation();
+     delete placements[id];
+     renderRecipients();
+   };
+   document.querySelector(`.recipient-drop[data-field="${field}"]`).appendChild(chip);
+ });
+}
+
+function showFeedback(type,text){
+ const f=document.getElementById("feedback");
+ f.className=`feedback ${type}`;
+ f.textContent=text;
+}
+function hideFeedback(){
+ const f=document.getElementById("feedback");
+ f.className="feedback";
+ f.textContent="";
+}
+
+function resetMission(){
+ placements={};selectedPerson=null;
+ renderRecipients();
+ document.getElementById("subject").value="";
+ document.getElementById("message").value="";
+ document.querySelectorAll(".person").forEach(x=>x.classList.remove("selected"));
+ hideFeedback();
+}
+
+function checkMission(){
+ const m=missions[missionIndex];
+ if(Object.keys(placements).length!==m.people.length){
+   showFeedback("bad","Place every recipient before sending.");
+   return;
+ }
+ const wrong=m.people.some((p,i)=>placements[i]!==p.field);
+ if(wrong){
+   showFeedback("bad","Check your fields again. Think about action, visibility, and privacy.");
+   return;
+ }
+ if(!document.getElementById("subject").value.trim() || !document.getElementById("message").value.trim()){
+   showFeedback("info","Your recipient fields are correct. Add a subject and short message before sending.");
+   return;
+ }
+ if(!completed.has(missionIndex)){
+   score++;
+   completed.add(missionIndex);
+ }
+ document.getElementById("score").textContent=`Score: ${score}`;
+ document.getElementById("modalTitle").textContent=missionIndex===missions.length-1?"Excellent work!":"Correct!";
+ document.getElementById("modalText").textContent="Your practice email used the correct recipient fields.";
+ document.getElementById("modalWhy").innerHTML=`<b>Why:</b> ${m.why}<br><br><b>DOK 3:</b> What problem could happen if you used a different field?`;
+ document.getElementById("modal").classList.remove("hidden");
+}
+
+function closeModal(){document.getElementById("modal").classList.add("hidden")}
+
+function nextMission(){
+ closeModal();
+ closeCompose();
+ if(missionIndex<missions.length-1){
+   missionIndex++;
+   renderMission();
+ }else{
+   document.getElementById("missionTitle").textContent="All missions complete";
+   document.getElementById("scenario").textContent=`You finished with a score of ${score}/${missions.length}.`;
+   document.getElementById("goal").textContent="Explain one situation where Cc is better than Bcc, and one situation where Bcc is safer.";
+   document.getElementById("progressBar").style.width="100%";
+   document.getElementById("peoplePool").innerHTML="";
+   showFeedback("good","Finished! Refresh the page to play again.");
+ }
+}
+
+renderMission();
+</script>
+</body>
+</html>
